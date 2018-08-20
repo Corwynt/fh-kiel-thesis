@@ -1,7 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{fh-kiel-thesis}[2018/03/08 LaTeX class for a Thesis at FH Kiel]
 \usepackage{morewrites}
-\LoadClass[12pt,headsepline]{scrbook}
+\LoadClass[12pt,headsepline,twoside]{scrbook}
 %%%%%%%%%%%%%%%%%%%%Options
 \RequirePackage{kvoptions-patch}
 \RequirePackage{xkeyval}
@@ -35,7 +35,7 @@
 \ProcessOptions\relax
 
 \ifthenelse{\boolean{useBib}}{
-	\usepackage[style=authoryear,sorting=ynt]{biblatex}
+	\usepackage[style=ieee,sorting=ynt]{biblatex}
 	\DefineBibliographyStrings{english}{bibliography = {References}}
 	\DefineBibliographyStrings{ngerman}{bibliography = {Quellenverzeichnis}}
 }{}
@@ -52,6 +52,7 @@
 \newboolean{showAcknowledgements}
 
 \newboolean{useMinted}
+\newboolean{useGloss}
 
 
 
@@ -78,7 +79,9 @@
 \renewcommand{\sectionmark}[1]{\markright{\rmfamily\upshape \thesection{} #1}{}}
 \usepackage{graphicx}
 
-
+\newcommand{\fhref}[3][]{%
+	\ifthenelse{\equal{#1}{}}{#3\footnote{\url{#2}}}{#3\footnote{#1: \url{#2}}}%
+}
 \def\university{Fachbereich Informatik und Elektrotechnik \\ der Fachhochschule Kiel}
 
 \def\thesisDate{\today}
@@ -94,6 +97,7 @@
 \def\@acknowledgements{}
 \AtBeginDocument{%
 	\@ifpackageloaded{minted}{\setboolean{useMinted}{true}}{\setboolean{useMinted}{false}}
+	\@ifpackageloaded{glossaries}{\setboolean{useGloss}{true}}{\setboolean{useGloss}{false}}
 	\frontmatter
 \begin{titlepage}
 	\begin{center}
@@ -120,7 +124,7 @@
 		
 		\vspace{1.5cm}
 		\langVar{written by}{vorgelegt von}\\
-		\textbf{\fh@name}\\
+		\textbf{\@author}\\
 		\langVar{student number}{Matrikelnummer}: \fh@studentNumber
 		\vfill
 		
@@ -139,13 +143,13 @@
 	\ifdefempty{\@abstract}{}{\input{abstract}}
 	\chapter*{\langVar{Declaration}{Erklärung}}
 	\langVar{
-		I, \fh@name, declare that this thesis is my own work and has not been submitted in any form for another degree or diploma at any university or other institute of tertiary education. Information derived from the published and unpublished work of others has been acknowledged in the text and a list of references is given in the bibliography.
+		I, \@author, declare that this thesis is my own work and has not been submitted in any form for another degree or diploma at any university or other institute of tertiary education. Information derived from the published and unpublished work of others has been acknowledged in the text and a list of references is given in the bibliography.
 	}{
-		Ich, \fh@name, versichere, dass ich diese Arbeit ohne fremde Hilfe selbständig verfasst und nur die angegebenen Quellen und Hilfsmittel benutzt habe. Wörtlich oder dem Sinn nach aus anderen Werken entnommene Stellen sind unter Angabe der Quellen kenntlich gemacht.
+		Ich, \@author, versichere, dass ich diese Arbeit ohne fremde Hilfe selbständig verfasst und nur die angegebenen Quellen und Hilfsmittel benutzt habe. Wörtlich oder dem Sinn nach aus anderen Werken entnommene Stellen sind unter Angabe der Quellen kenntlich gemacht.
 	}
 	\vspace{2.5cm}
 	\par\noindent\makebox[2.2in]{\hrulefill} \hfill\makebox[2.6in]{\hrulefill}%
-	\par\noindent\makebox[2.0in][l]{\langVar{City, Date}{Ort, Datum}}\hfill\makebox[2.5in][l]{\fh@name}
+	\par\noindent\makebox[2.0in][l]{\langVar{City, Date}{Ort, Datum}}\hfill\makebox[2.5in][l]{\@author}
 	\ifdefempty{\@acknowledgements}{}{\chapter*{\langVar{Acknowledgements}{Danksagung}}\@acknowledgements}
  \tableofcontents
 	\mainmatter
@@ -163,6 +167,7 @@
 \listoftables
 \addcontentsline{toc}{section}{\langVar{List of Figures}{Bildverzeichnis}}
 \listoffigures
-\ifthenelse{\boolean{useBib}}{\printbibliography\addcontentsline{toc}{section}{\langVar{References}{Quellenverzeichnis}}}{}
-\ifthenelse{\boolean{useMinted}}{\listoflistings\addcontentsline{toc}{section}{\langVar{Code Listings}{Quellcode}}}{}
+\ifthenelse{\boolean{useBib}}{\addcontentsline{toc}{section}{\langVar{References}{Quellenverzeichnis}}\printbibliography}{}
+\ifthenelse{\boolean{useMinted}}{\addcontentsline{toc}{section}{\langVar{Code Listings}{Quellcode}}\listoflistings}{}
+\ifthenelse{\boolean{useGloss}}{\addcontentsline{toc}{section}{\langVar{Acronyms}{Abkürzungen}}\printglossaries}{}
 }
